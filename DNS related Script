@@ -1,0 +1,58 @@
+# Use Azure CLI
+# Use a CSV file to input value
+# For A record
+
+#Creation:
+
+Import-Csv .\Book1.csv |%{New-AzureRmDnsRecordSet -Name $_.d -RecordType A -ZoneName "domain.com" -ResourceGroupName "<NameoftheRG>" -Ttl 600 -DnsRecords (New-AzureRmDnsRecordConfig -IPv4Address $_.ip)}
+
+#Use PowerShell
+
+Login-AzureRmAccount
+
+$subname="<NameoftheSubscription"
+$sub = Get-AzureRmSubscription -SubscriptionName $subname
+Set-AzureRmContext -SubscriptionId $sub.Id  | Out-Null   
+
+$csvfilepath="D:\Dns.csv"
+$dns = import-csv $csvfilepath
+
+ForEach ($dns in $dns)
+
+{
+
+$recordname=$dns.recordname
+$recordvalue=$dns.recordvalue
+$recordtype=$dns.recordtype
+$resourcegroup=$dns.resourcegroup
+$dnszone=$dns.dnszone
+$Ipv4=$dns.Ipv4address
+$rs = Get-AzureRmDnsRecordSet -name "$recordname" -RecordType $dns.recordtype -ZoneName "$dnszone="no -ResourceGroupName "$resourcegroup" $rs.Records[0].Ipv4Address = "$Ipv4" Set-AzureRmDnsRecordSet -RecordSet $rs
+
+
+#Deletion :
+
+Remove-AzureRmDnsRecordSet -Name "<NameoftheRecord>" -ResourceGroupName "<NameoftheRG>" -ZoneName "domain.com" -RecordType A
+
+
+# For Cname Record
+
+#Creation
+
+Import-Csv c:\users\m1046504\desktop\DNS.csv |%{az network dns record-set cname set-record --resource-group "<NameoftheRG>" --zone-name $_.ZoneName --record-set-name $_.name --cname $_.value}
+
+Deletion:
+
+$RecordSet = Get-AzureRmDnsRecordSet -Name "<NameoftheRecord>" -ResourceGroupName "<NameoftheRG>" -ZoneName "domain.com" -RecordType CNAME
+Remove-AzureRmDnsRecordSet -RecordSet $RecordSet
+
+# For TXT Record
+
+Import-Csv c:\users\m1046504\desktop\DNS.csv |%{az network dns record-set txt add-record --resource-group "<RGName>" -
+-zone-name $_.ZoneName --record-set-name "<Name>" --value $_.Value}
+
+Use PowerShell :
+
+$Records = @()
+$Records += New-AzureRmDnsRecordConfig -Value "<Value>
+$RecordSet = New-AzureRmDnsRecordSet -Name "<Name>" -RecordType TXT -ResourceGroupName "<RGName>" -TTL 600 -ZoneName $_.ZoneName -DnsRecords $Records
