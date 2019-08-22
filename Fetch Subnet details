@@ -1,0 +1,18 @@
+
+$vnets = Get-AzVirtualNetwork | select Name,ResourceGroupName
+
+foreach ($vnet in $vnets) {
+
+$Vname = $vnet.Name
+$nic = Get-AzVirtualNetwork -Name $vnet.Name -ResourceGroupName $vnet.ResourceGroupName
+$vnetAddrprfx = $nic.AddressSpace.AddressPrefixes
+$subnets = $nic.Subnets
+foreach( $subnet in $subnets) {
+$Sname = $subnet.Name
+$Saddr = $subnet.AddressPrefix
+$splitAddress = $subnet.AddressPrefix.Split("/") 
+$avlblip = [math]::Pow(2, (32 - $splitAddress[1])) - 5 - $subnet.IpConfigurations.Count
+
+Write-Host "$Vname;$Sname;$Saddr;$avlblip"
+ }
+}
