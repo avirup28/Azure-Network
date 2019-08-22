@@ -1,4 +1,3 @@
-
 $vnets = Get-AzVirtualNetwork | select Name,ResourceGroupName
 
 foreach ($vnet in $vnets) {
@@ -13,6 +12,15 @@ $Saddr = $subnet.AddressPrefix
 $splitAddress = $subnet.AddressPrefix.Split("/") 
 $avlblip = [math]::Pow(2, (32 - $splitAddress[1])) - 5 - $subnet.IpConfigurations.Count
 
-Write-Host "$Vname;$Sname;$Saddr;$avlblip"
- }
+$Output =New-Object -TypeName PSObject -Property @{
+    Vnet = $Vname
+    Sname = $Sname 
+    AddressSpace = $Saddr
+    AvailableIP = $avlblip
+  } | select Vnet,Sname,AddressSpace,AvailableIP
+
+$Output | Export-Csv .\test.csv -Append
 }
+ }
+ 
+ Write-Host "Execution Completed"
