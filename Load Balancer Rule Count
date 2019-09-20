@@ -1,0 +1,22 @@
+$LBs = Get-AzLoadBalancer
+
+foreach ($LB in $LBs) {
+
+$BPs = Get-AzLoadBalancerBackendAddressPoolConfig -LoadBalancer $LB
+
+foreach ($BP in $BPs) {
+
+ $RuleCount = (Get-AzLoadBalancerBackendAddressPoolConfig -LoadBalancer $LB -Name $BP.Name).LoadBalancingRules.Count
+
+ $Output =New-Object -TypeName PSObject -Property @{
+    LoadBalancer = $LB.Name
+    ResourceGroup = $LB.ResourceGroupName
+    BackendPool = $BP.Name
+    NumberOfRules = $RuleCount
+  } | select LoadBalancer,ResourceGroup,BackendPool,NumberOfRules
+
+
+$Output | Export-Csv .\LBrule.csv -Append
+
+}
+}
